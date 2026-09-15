@@ -1,0 +1,9 @@
+{
+  "autoStart": false,
+  "wakeWordEnabled": false,
+  "wakePhrase": "hey myraa",
+  "micDeviceId": "",
+  "sensitivity": 91,
+  "animations": true,
+  "characterShine": 50
+}

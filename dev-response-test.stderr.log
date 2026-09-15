@@ -1,0 +1,38 @@
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Gemini Live session closed: code=1000 reason=No close reason provided
+[Memory] Consolidation failure: ApiError: {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+    at throwErrorIfNotOK (F:\MYRAA TO 3D\myraa-ai-assistant\node_modules\@google\genai\src\_api_client.ts:983:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async <anonymous> (F:\MYRAA TO 3D\myraa-ai-assistant\node_modules\@google\genai\src\_api_client.ts:588:9)
+    at async Models.Models.generateContent (F:\MYRAA TO 3D\myraa-ai-assistant\node_modules\@google\genai\src\models.ts:128:14)
+    at async processConversationSlice (F:\MYRAA TO 3D\myraa-ai-assistant\server_memory.ts:136:22)
+    at async <anonymous> (F:\MYRAA TO 3D\myraa-ai-assistant\server.ts:1364:37) {
+  status: 503
+}
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Gemini Live session closed: code=1000 reason=No close reason provided
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+[Memory] Consolidation failure: ApiError: {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+    at throwErrorIfNotOK (F:\MYRAA TO 3D\myraa-ai-assistant\node_modules\@google\genai\src\_api_client.ts:983:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async <anonymous> (F:\MYRAA TO 3D\myraa-ai-assistant\node_modules\@google\genai\src\_api_client.ts:588:9)
+    at async Models.Models.generateContent (F:\MYRAA TO 3D\myraa-ai-assistant\node_modules\@google\genai\src\models.ts:128:14)
+    at async processConversationSlice (F:\MYRAA TO 3D\myraa-ai-assistant\server_memory.ts:136:22)
+    at async <anonymous> (F:\MYRAA TO 3D\myraa-ai-assistant\server.ts:1364:37) {
+  status: 503
+}
+Gemini Live session closed: code=1000 reason=No close reason provided
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+[Memory] Consolidation failure: ApiError: {"error":{"code":503,"message":"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.","status":"UNAVAILABLE"}}
+    at throwErrorIfNotOK (F:\MYRAA TO 3D\myraa-ai-assistant\node_modules\@google\genai\src\_api_client.ts:983:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async <anonymous> (F:\MYRAA TO 3D\myraa-ai-assistant\node_modules\@google\genai\src\_api_client.ts:588:9)
+    at async Models.Models.generateContent (F:\MYRAA TO 3D\myraa-ai-assistant\node_modules\@google\genai\src\models.ts:128:14)
+    at async processConversationSlice (F:\MYRAA TO 3D\myraa-ai-assistant\server_memory.ts:136:22)
+    at async <anonymous> (F:\MYRAA TO 3D\myraa-ai-assistant\server.ts:1364:37) {
+  status: 503
+}
+Gemini Live session closed: code=1000 reason=No close reason provided
