@@ -1,90 +1,189 @@
-# MYRAA
+# MYRAA Desktop Control Agent
 
-MYRAA is a desktop AI assistant with a modular real-time 3D anime character system.
+A local Python FastAPI service that gives MYRAA **JARVIS-style desktop control** —
+open apps, manage files, control volume, take screenshots, OCR the screen, control the
+user's real Windows browser, run code, read system stats, and more.
 
-## Workspace contract
+> **This agent does NOT modify MYRAA's UI, personality, or chat system.** It is a pure
+> backend tool layer that MYRAA's existing Node bridge (`server.ts`) calls over HTTP.
 
-The repository is intentionally split into two top-level areas:
+---
 
-```text
-MYRAA TO 3D/
-├── myraa-ai-assistant/   Application and runtime-ready character assets
-└── MYRAA 3d MODELS/     Raw source models and their original textures
+## Prerequisites
+
+| Dependency | Why | Notes |
+|---|---|---|
+| **Python 3.11+** | Runtime | Use the full interpreter path, e.g. `C:\Users\MSI\AppData\Local\Programs\Python\Python311\python.exe` |
+| **pip** | Install Python packages | Ships with Python |
+| **Tesseract OCR** *(optional)* | Screen text reading | Download from [UB-Mannheim/tesseract](https://github.com/UB-Mannheim/tesseract/wiki). Non-OCR tools work without it. |
+
+---
+
+## Setup (one-time)
+
+```bash
+# 1. Navigate to the project root
+cd C:\Users\MSI\Desktop\myraa-ai-assistant
+
+# 2. Install Python dependencies (use the full interpreter path if `python` shim is broken)
+"C:\Users\MSI\AppData\Local\Programs\Python\Python311\python.exe" -m pip install -r desktop_agent/requirements.txt
+
+# 3. (Optional) Install Tesseract OCR for screen-reading capabilities
+#    Download installer from: https://github.com/UB-Mannheim/tesseract/wiki
+#    Install to default path: C:\Program Files\Tesseract-OCR\
 ```
 
-Keep raw PMX files and original model packages in `MYRAA 3d MODELS`. The application must not load them directly. A model is staged into `myraa-ai-assistant/assets/characters/<character-id>`, then registered through `src/character/config/registry.ts`.
+---
 
-Model `1739444010509` (Evelyn) is the only active integration target. Complete and validate it before staging or registering the second model.
+## Run
 
-## Character controls
+```bash
+# Start the desktop agent on port 8765
+"C:\Users\MSI\AppData\Local\Programs\Python\Python311\python.exe" -m desktop_agent.main
 
-| Control | Action |
-| --- | --- |
-| `W A S D` | Smooth free camera orbit, including side and back views |
-| `Q / E` | Zoom out / in |
-| `L` | Lock or unlock the current view |
-| `F` | Toggle eyes following the mouse |
-| `R` | Reset the camera to the default front view |
-| `1` | Front preset |
-| `2` | Three-quarter preset |
-| `3` | Side preset |
-| `4` | Back preset |
-
-The preview also exposes clickable **View lock**, **Eyes**, **Front**, **¾**, **Side**, and **Back** controls. While view lock is active, orbit, zoom, reset, and preset changes are intentionally blocked.
-
-## Character architecture
-
-The implementation under `src/character` is divided by responsibility:
-
-- `core`: stage, render loop, model lifecycle, camera and system orchestration
-- `loaders`: PMX parsing and staged texture resolution
-- `materials`: anime shading, toon ramps, outlines and ambient occlusion
-- `lighting`: body and camera-relative portrait lighting rigs
-- `animation`: layered pose, idle, gaze and grant solving
-- `face`: expressions, morphs, blinking and real-time lip sync
-- `behaviour`: random natural actions and activity-aware direction
-- `physics`: secondary motion for hair, clothing and accessories
-- `config/characters`: all model-specific bones, morphs, materials and tuning
-
-New characters should be added through configuration and staged assets rather than by hardcoding model details into the shared runtime.
-
-## Development
-
-Prerequisites: Node.js and npm.
-
-```powershell
-npm install
-npm run dev
+# Or with uvicorn directly:
+"C:\Users\MSI\AppData\Local\Programs\Python\Python311\python.exe" -m uvicorn desktop_agent.main:app --host 127.0.0.1 --port 8765
 ```
 
-Open the standalone tuning harness at:
+The agent binds to `127.0.0.1:8765`. Then start MYRAA normally with `npm run dev`.
 
-`http://localhost:5178/character-preview.html`
+---
 
-Use these checks before shipping character changes:
+## API
 
-```powershell
-npm run lint
-npm run build
+### `GET /health`
+Returns `{ status: "ok", tools: [...], tool_count: N }`.
+
+### `GET /tools`
+Returns the list of registered tool names.
+
+### `POST /execute`
+```json
+{ "tool": "openApplication", "args": { "name": "notepad" } }
+```
+Returns:
+```json
+{ "ok": true, "result": { "result": "Notepad opened." }, "tool": "openApplication" }
+```
+On error:
+```json
+{ "ok": false, "error": "File does not exist: ...", "tool": "readFile" }
 ```
 
-Set local API credentials in `.env`; never commit secrets.
+---
 
-The backend also maintains an internal public-API capability registry sourced
-from `public-apis/public-apis`. See [`docs/API_HUB.md`](docs/API_HUB.md) for its
-cache, provider states, discovery endpoints, and code-free adapter boundary.
+## Available Tools
 
-## Cognitive runtime
+### 🖥️ Applications
+| Tool | Description |
+|---|---|
+| `openApplication` | Open Notepad, Chrome, VS Code, Calculator, Explorer, Task Manager, Settings, etc. |
+| `closeApplication` | Close a running application by name |
 
-The event-driven cognitive backend extends the existing application without
-changing the UI or character system. Its architecture, safety boundaries,
-feature flags, storage files, APIs, tests, and phased roadmap are documented in
-[`docs/COGNITIVE_ARCHITECTURE.md`](docs/COGNITIVE_ARCHITECTURE.md).
+### 🌐 Websites & Search
+| Tool | Description |
+|---|---|
+| `openWebsite` | Open a named site (YouTube, Gmail, GitHub…) or arbitrary URL in the default browser |
+| `searchWeb` | Search any engine (Google, YouTube, GitHub, DuckDuckGo, Bing) |
+| `searchYouTube` | Shortcut: search YouTube |
+| `searchGoogle` | Shortcut: search Google |
+| `searchGitHub` | Shortcut: search GitHub |
 
-```powershell
-npm run test:cognition
-npm run test:api-hub
-npm run test:screen-vision
-npm run test:python
-npm run simulate:cognition
+### 📁 Files
+| Tool | Description |
+|---|---|
+| `createFile` | Create a text file with content |
+| `readFile` | Read a file's contents |
+| `renameFile` | Rename a file |
+| `deleteFile` | Delete a file (sends to Recycle Bin by default) |
+| `moveFile` | Move a file to a new location |
+| `openFolder` | Open Desktop, Documents, Downloads, etc. in Explorer |
+| `listFiles` | List files in a folder |
+| `searchFiles` | Find files by name/extension (e.g. "find my Python files") |
+
+### 🎛️ PC Control
+| Tool | Description |
+|---|---|
+| `volumeUp` | Increase volume |
+| `volumeDown` | Decrease volume |
+| `setVolume` | Set volume to a specific percentage |
+| `muteToggle` | Toggle mute/unmute |
+| `requestPowerAction` | **Step 1**: Request confirmation token for shutdown/restart/sleep/lock |
+| `executePowerAction` | **Step 2**: Execute the power action with a valid token |
+
+### 🪟 Window Management
+| Tool | Description |
+|---|---|
+| `minimizeWindow` | Minimize active or named window |
+| `maximizeWindow` | Maximize active or named window |
+| `closeWindow` | Close active or named window |
+| `switchApplication` | Switch to a named window, or Alt+Tab cycle |
+
+### 📋 Clipboard
+| Tool | Description |
+|---|---|
+| `copySelected` | Copy selected text (sends Ctrl+C, reads clipboard) |
+| `pasteClipboard` | Paste text into the active input |
+| `getClipboard` | Read current clipboard contents |
+| `clearClipboard` | Empty the clipboard |
+
+### 📸 Screenshot & Screen Reading
+| Tool | Description |
+|---|---|
+| `takeScreenshot` | Capture the full screen |
+| `saveScreenshot` | Save screenshot to Pictures/MyraaScreenshots |
+| `analyzeScreenshot` | Screenshot + OCR to extract visible text |
+| `readScreen` | Read the active window's title + visible text via OCR |
+
+### 🌐 Real Windows Browser
+| Tool | Description |
+|---|---|
+| `openWebsite` | Open a URL in the user's Windows default browser |
+| `searchWeb` / `searchGoogle` | Search in the active default-browser tab |
+| `searchYouTube` / `searchGitHub` | Open service-specific results in that same tab |
+| `viewScreen` / `readScreen` | Observe the browser that is actually visible |
+| `clickText` / `typeText` / `hotkey` / `scroll` | Control the visible browser with native input |
+
+### 💻 Coding Assistance
+| Tool | Description |
+|---|---|
+| `createPythonFile` | Write a .py file |
+| `writeCodeFile` | Write a code file in any language |
+| `createProjectFolder` | Scaffold a project folder with subfolders |
+| `runPythonScript` | Execute a Python script (captured output) |
+
+### 📊 System Information
+| Tool | Description |
+|---|---|
+| `systemInfo` | CPU, RAM, disk usage, uptime |
+| `gpuInfo` | NVIDIA GPU utilization, VRAM, temperature |
+| `temperatureInfo` | All available temperature sensors |
+
+---
+
+## Safety
+
+- **Power actions** (shutdown, restart, sleep, lock) require a **two-step confirmation token**: MYRAA must first call `requestPowerAction` (which issues a single-use, 60-second token), ask the user out loud to confirm, then call `executePowerAction` with the token. Without a valid token, the action is refused.
+- **File deletions** go to the Recycle Bin by default (`send2trash`).
+- **File operations** are scoped to safe folders (Desktop, Documents, Downloads, Pictures, Music, Videos, home, project root). Paths outside these roots are rejected.
+- **Python script execution** has a configurable timeout (default 30s).
+
+---
+
+## Architecture
+
+```
+MYRAA voice chat (existing, untouched)
+        ↓
+Gemini Live API (existing)
+        ↓
+server.ts — functionCall routing
+        ↓
+HTTP POST → localhost:8765/execute
+        ↓
+Python FastAPI desktop_agent
+        ↓
+pyautogui / pywin32 / psutil / Windows OCR / pytesseract / etc.
+        ↓
+Windows Desktop
 ```
